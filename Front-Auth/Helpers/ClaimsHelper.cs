@@ -3,15 +3,17 @@ using System.Security.Claims;
 
 namespace FrontAuth.WebApp.Helpers
 {
-    public static class ClaimsHelper
+    public  static class ClaimsHelper
     {
+        private const string role = ClaimTypes.Role;
+
         public static ClaimsPrincipal CrearClaimsPrincipal(LoginResponseDTO usuario)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, usuario.Nombre),
+                new Claim(ClaimTypes.Name , usuario.Nombre),
                 new Claim(ClaimTypes.Email, usuario.Email),
-                new Claim(ClaimTypes.Role, usuario.Rol),
+                new Claim(role, usuario.Rol),
                 new Claim("Token", usuario.Token)
             };
 
