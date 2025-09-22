@@ -4,11 +4,8 @@ using System.Security.Claims;
 
 namespace Front_Auth.DTOs.UsuarioDTOs
 {
-    public class LoginResponseDTO : UsuarioLoginDTO
+    public class LoginResponseDTO : UsuarioDTO
     {
         public String Token { get; set; }
-        public int Id { get; internal set; }
-        public ClaimsIdentity? Rol { get; internal set; }
-        public ClaimsIdentity? Nombre { get; internal set; }
     }
 }
