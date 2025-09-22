@@ -1,15 +1,28 @@
+using FrontAuth.WebApp.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-
-// Define la URL base de la API que vamos a consumir
-builder.Services.AddHttpClient("Client", client =>
+// 1) Todo requiere sesión por defecto (salvo [AllowAnonymous])
+builder.Services.AddControllersWithViews(opts =>
 {
-    client.BaseAddress = new Uri("https://localhost:7024/api/"); // API base (puerto cambia según pc)
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    opts.Filters.Add(new AuthorizeFilter(policy));
 });
 
-//Configuración de la autenticación de la aplicación usando cookies
+// Define la URL base de la API que vamos a consumir
+builder.Services.AddHttpClient<ApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7199/api/");
+});
+
+builder.Services.AddScoped<AuthService>();
+
+// Configuración de la autenticación de la aplicación usando cookies
 builder.Services.AddAuthentication("AuthCookie")
     .AddCookie("AuthCookie", options =>
     {
@@ -20,7 +33,7 @@ builder.Services.AddAuthentication("AuthCookie")
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -32,11 +45,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Middleware de Autenticación y Autorización
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
